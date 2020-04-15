@@ -1,0 +1,157 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from __future__ import print_function\n",
+    "import cv2 as cv\n",
+    "import argparse"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "usage: ipykernel_launcher.py [-h] [--camera CAMERA]\n",
+      "ipykernel_launcher.py: error: unrecognized arguments: -f C:\\Users\\SUNNY\\AppData\\Roaming\\jupyter\\runtime\\kernel-9bdd5ed9-bcf5-4e80-b918-b64a6a84688b.json\n"
+     ]
+    },
+    {
+     "ename": "SystemExit",
+     "evalue": "2",
+     "output_type": "error",
+     "traceback": [
+      "An exception has occurred, use %tb to see the full traceback.\n",
+      "\u001b[1;31mSystemExit\u001b[0m\u001b[1;31m:\u001b[0m 2\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "C:\\Users\\SUNNY\\Anaconda3\\lib\\site-packages\\IPython\\core\\interactiveshell.py:3339: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.\n",
+      "  warn(\"To exit: use 'exit', 'quit', or Ctrl-D.\", stacklevel=1)\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "max_value = 255\n",
+    "max_value_H = 360//2\n",
+    "low_H = 0\n",
+    "low_S = 0\n",
+    "low_V = 0\n",
+    "high_H = max_value_H\n",
+    "high_S = max_value\n",
+    "high_V = max_value\n",
+    "window_capture_name = 'Video Capture'\n",
+    "window_detection_name = 'Object Detection'\n",
+    "low_H_name = 'Low H'\n",
+    "low_S_name = 'Low S'\n",
+    "low_V_name = 'Low V'\n",
+    "high_H_name = 'High H'\n",
+    "high_S_name = 'High S'\n",
+    "high_V_name = 'High V'\n",
+    "def on_low_H_thresh_trackbar(val):\n",
+    "    global low_H\n",
+    "    global high_H\n",
+    "    low_H = val\n",
+    "    low_H = min(high_H-1, low_H)\n",
+    "    cv.setTrackbarPos(low_H_name, window_detection_name, low_H)\n",
+    "def on_high_H_thresh_trackbar(val):\n",
+    "    global low_H\n",
+    "    global high_H\n",
+    "    high_H = val\n",
+    "    high_H = max(high_H, low_H+1)\n",
+    "    cv.setTrackbarPos(high_H_name, window_detection_name, high_H)\n",
+    "def on_low_S_thresh_trackbar(val):\n",
+    "    global low_S\n",
+    "    global high_S\n",
+    "    low_S = val\n",
+    "    low_S = min(high_S-1, low_S)\n",
+    "    cv.setTrackbarPos(low_S_name, window_detection_name, low_S)\n",
+    "def on_high_S_thresh_trackbar(val):\n",
+    "    global low_S\n",
+    "    global high_S\n",
+    "    high_S = val\n",
+    "    high_S = max(high_S, low_S+1)\n",
+    "    cv.setTrackbarPos(high_S_name, window_detection_name, high_S)\n",
+    "def on_low_V_thresh_trackbar(val):\n",
+    "    global low_V\n",
+    "    global high_V\n",
+    "    low_V = val\n",
+    "    low_V = min(high_V-1, low_V)\n",
+    "    cv.setTrackbarPos(low_V_name, window_detection_name, low_V)\n",
+    "def on_high_V_thresh_trackbar(val):\n",
+    "    global low_V\n",
+    "    global high_V\n",
+    "    high_V = val\n",
+    "    high_V = max(high_V, low_V+1)\n",
+    "    cv.setTrackbarPos(high_V_name, window_detection_name, high_V)\n",
+    "parser = argparse.ArgumentParser(description='Code for Thresholding Operations using inRange tutorial.')\n",
+    "parser.add_argument('--camera', help='Camera divide number.', default=0, type=int)\n",
+    "args = parser.parse_args()\n",
+    "cap = cv.VideoCapture(args.camera)\n",
+    "cv.namedWindow(window_capture_name)\n",
+    "cv.namedWindow(window_detection_name)\n",
+    "cv.createTrackbar(low_H_name, window_detection_name , low_H, max_value_H, on_low_H_thresh_trackbar)\n",
+    "cv.createTrackbar(high_H_name, window_detection_name , high_H, max_value_H, on_high_H_thresh_trackbar)\n",
+    "cv.createTrackbar(low_S_name, window_detection_name , low_S, max_value, on_low_S_thresh_trackbar)\n",
+    "cv.createTrackbar(high_S_name, window_detection_name , high_S, max_value, on_high_S_thresh_trackbar)\n",
+    "cv.createTrackbar(low_V_name, window_detection_name , low_V, max_value, on_low_V_thresh_trackbar)\n",
+    "cv.createTrackbar(high_V_name, window_detection_name , high_V, max_value, on_high_V_thresh_trackbar)\n",
+    "while True:\n",
+    "    \n",
+    "    ret, frame = cap.read()\n",
+    "    if frame is None:\n",
+    "        break\n",
+    "    frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)\n",
+    "    frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))\n",
+    "    \n",
+    "    \n",
+    "    cv.imshow(window_capture_name, frame)\n",
+    "    cv.imshow(window_detection_name, frame_threshold)\n",
+    "    \n",
+    "    key = cv.waitKey(30)\n",
+    "    if key == ord('q') or key == 27:\n",
+    "        break"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
